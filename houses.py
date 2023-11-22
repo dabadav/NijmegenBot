@@ -11,23 +11,18 @@ def get_property_details_dolfijn():
     response = requests.get(url)
     response.raise_for_status()
     soup = BeautifulSoup(response.text, 'html.parser')
-
     items = soup.select('article.objectcontainer')
-
     properties = []
-
+    
     for item in items:
         details = {}
-
         # Extracting address
         address = item.select_one('span.street').text.strip() + ', ' + item.select_one('span.location').text.strip()
         details['address'] = address
-
         # Extracting link
         link_tag = item.select_one('a.img-container[href]')
         if link_tag:
             details['link'] = 'https://dolfijnwonen.nl' + link_tag['href']  # Adjust base URL if needed
-
         # Extracting price
         price = item.select_one('span.obj_price').text.strip()
         price = price.replace('/mnd', '').strip()
@@ -41,9 +36,7 @@ def get_property_details_dolfijn():
         details['bedrooms'] = item.select_one('span.object_bed_rooms .number').text.strip()
         # details['bathrooms'] = item.select_one('span.object_bath_rooms .number').text.strip()
         details['surface'] = item.select_one('span.object_sqfeet .number').text.strip()
-
         properties.append(details)
-
     # Sorting properties by price in decreasing order
     properties = sorted(properties, key=lambda x: x['price'], reverse=False)
 
