@@ -1,1 +1,1 @@
-# NijmegenBot
+# Nijmegen Bot
