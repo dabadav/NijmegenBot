@@ -6,6 +6,38 @@ from bs4 import BeautifulSoup
 TOKEN="6331637997:AAFWO69jwduyTtox-7htClZP0PFKy1wIK4o"
 CHAT_ID="510793962"
 
+def get_property_details_nederwoon():
+    url = 'https://nederwoon.nl/search?search_type=&type=&rooms=&completion=&sort=2&city=Nijmegen'
+    response = requests.get(url)
+    response.raise_for_status()
+    soup = BeautifulSoup(response.text, 'html.parser')
+    items = soup.select('div.location')
+    properties = []
+    
+    for item in items:
+        details = {}
+        # Extracting address
+        address = item.select_one('p.color-medium.fixed-lh').text.strip()
+        details['address'] = address
+        # Extracting link
+        link_tag = item.select_one('a.see-page-button[href]')
+        if link_tag:
+            details['link'] = 'https://nederwoon.nl' + link_tag['href']
+        # Extracting price
+        price = item.select_one('p.heading-md.text-regular.color-primary').text.strip()
+        details['price'] = price
+        # Extracting other details like rooms, size, etc.
+        details_list = item.select('ul > li')
+        for detail in details_list:
+            if 'Woonoppervlakte' in detail.text:
+                details['surface'] = detail.text.replace('Woonoppervlakte', '').strip()
+            elif 'kamer' in detail.text:
+                details['rooms'] = detail.text.strip()
+            # Add more details as required
+        properties.append(details)
+
+    return properties
+
 def get_property_details_dolfijn():
     url = 'https://dolfijnwonen.nl/woningaanbod/huur?availability=1&moveunavailablelistingstothebottom=true&orderby=10&orderdescending=true'
     response = requests.get(url)
@@ -111,8 +143,10 @@ def send_telegram_message(message: str, chat_id: str, token: str):
 def main():
     details_dolfijn = format_for_telegram(get_property_details_dolfijn())
     details_pararius = format_for_telegram(get_property_details_pararius())
+    details_nederwoon = format_for_telegram(get_property_details_nederwoon())
     send_telegram_message(details_dolfijn, CHAT_ID, TOKEN)
     send_telegram_message(details_pararius, CHAT_ID, TOKEN)
+    send_telegram_message(details_nederwoon, CHAT_ID, TOKEN)
 
 if __name__ == '__main__':
     main()
