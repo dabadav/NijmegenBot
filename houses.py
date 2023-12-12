@@ -6,7 +6,7 @@ from geopy.distance import geodesic
 
 TOKEN="6331637997:AAFWO69jwduyTtox-7htClZP0PFKy1wIK4o"
 CHAT_ID="510793962"
-GEO_API = 'pk.71b6f8217a35c11611c8f45d07f69399'
+GEO_API='pk.71b6f8217a35c11611c8f45d07f69399'
 
 reference_address = "Huygensgebouw, Heyendaalseweg, Nijmegen"
 
