@@ -2,9 +2,51 @@ from telegram import Bot
 import asyncio
 import requests
 from bs4 import BeautifulSoup
+from geopy.distance import geodesic
 
 TOKEN="6331637997:AAFWO69jwduyTtox-7htClZP0PFKy1wIK4o"
 CHAT_ID="510793962"
+GEO_API = 'pk.71b6f8217a35c11611c8f45d07f69399'
+
+reference_address = "Huygensgebouw, Heyendaalseweg, Nijmegen"
+reference_location = get_location(reference_address, GEO_API)  # Replace with your reference address
+
+def get_location(address, api_key):
+    # Encode the address for URL
+    params = {
+        'key': api_key,
+        'q': address,
+        'format': 'json'
+    }
+
+    # Send request to LocationIQ
+    response = requests.get("https://us1.locationiq.com/v1/search.php", params=params)
+
+    # Check if the response is successful
+    if response.status_code == 200:
+        data = response.json()[0]  # Take the first result
+        return (float(data['lat']), float(data['lon']))
+    else:
+        return None
+
+def get_distance(location1, location2):
+    # Calculate the distance
+    if location1 and location2:
+        distance = geodesic(location1, location2).kilometers
+
+        # Average speeds (km/h)
+        walking_speed = 4  # Average walking speed
+        biking_speed = 12  # Average biking speed
+
+        # Time estimation (hours)
+        walking_time = (distance / walking_speed) * 60
+        biking_time = (distance / biking_speed) * 60
+
+        # Print results
+        # print(f"{distance:.2f}km {walking_time:.0f}min {biking_time:.0f}min")
+        return [distance, walking_time, biking_time]
+    else:
+        return 0
 
 def get_property_details_nederwoon():
     url = 'https://nederwoon.nl/search?search_type=&type=&rooms=&completion=&sort=2&city=Nijmegen'
@@ -68,6 +110,13 @@ def get_property_details_dolfijn():
         details['bedrooms'] = item.select_one('span.object_bed_rooms .number').text.strip()
         # details['bathrooms'] = item.select_one('span.object_bath_rooms .number').text.strip()
         details['surface'] = item.select_one('span.object_sqfeet .number').text.strip()
+
+        property_location = get_location(details['address'], GEO_API)
+        distances = get_distance(property_location, reference_location)
+        
+        if distances != 0:
+            details['distance'] = distances
+        
         properties.append(details)
     # Sorting properties by price in decreasing order
     properties = sorted(properties, key=lambda x: x['price'], reverse=False)
@@ -130,6 +179,9 @@ def format_for_telegram(properties):
 
         if 'bedrooms' in prop:
             msg.append(f"Bedrooms: {prop['bedrooms']}")
+
+        if 'distance' in prop:
+            msg.append(f"Distance: {prop['distance'][0]:.2f}km, Walking: {prop['distance'][1]:.0f}min, Biking: {prop['distance'][2]:.0f}min")
 
         messages.append('\n'.join(msg))
 
