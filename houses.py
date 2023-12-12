@@ -182,7 +182,7 @@ def format_for_telegram(properties):
             msg.append(f"Bedrooms: {prop['bedrooms']}")
 
         if 'distance' in prop:
-            msg.append(f"Distance: {prop['distance'][0]:.2f}km, Walking: {prop['distance'][1]:.0f}min, Biking: {prop['distance'][2]:.0f}min")
+            msg.append(f"Distance: {prop['distance'][0]:.2f}km ({prop['distance'][1]:.0f}min, {prop['distance'][2]:.0f}min)")
 
         messages.append('\n'.join(msg))
 
