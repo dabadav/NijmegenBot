@@ -23,7 +23,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install python-telegram-bot requests beautifulsoup4  # Replace with your dependencies installation command
+          pip install python-telegram-bot requests beautifulsoup4 geopy # Replace with your dependencies installation command
 
       - name: Run script
         run: python houses.py  # Replace with the path to your Python script
