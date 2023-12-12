@@ -9,7 +9,6 @@ CHAT_ID="510793962"
 GEO_API = 'pk.71b6f8217a35c11611c8f45d07f69399'
 
 reference_address = "Huygensgebouw, Heyendaalseweg, Nijmegen"
-reference_location = get_location(reference_address, GEO_API)  # Replace with your reference address
 
 def get_location(address, api_key):
     # Encode the address for URL
@@ -28,6 +27,8 @@ def get_location(address, api_key):
         return (float(data['lat']), float(data['lon']))
     else:
         return None
+
+reference_location = get_location(reference_address, GEO_API)  # Replace with your reference address
 
 def get_distance(location1, location2):
     # Calculate the distance
