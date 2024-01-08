@@ -1,0 +1,2 @@
+python-telegram-bot
+geopy==2.4.1
