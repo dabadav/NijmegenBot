@@ -49,10 +49,26 @@ def get_distance(location1, location2):
     else:
         return 0
 
+def post_request(url):
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        if response is not None:
+            print("Response Received!")
+        return response
+    except Exception as error:
+        print(error)
+
+def post_message(text):
+    if text is not None:
+        send_telegram_message(text, CHAT_ID, TOKEN)
+        print("Message sent!")
+    else:
+        print("There is no content to message!")
+
 def get_property_details_nederwoon():
     url = 'https://nederwoon.nl/search?search_type=&type=&rooms=&completion=&sort=2&city=Nijmegen'
-    response = requests.get(url)
-    response.raise_for_status()
+    response = post_request(url)
     soup = BeautifulSoup(response.text, 'html.parser')
     items = soup.select('div.location')
     properties = []
@@ -83,8 +99,8 @@ def get_property_details_nederwoon():
 
 def get_property_details_dolfijn():
     url = 'https://dolfijnwonen.nl/woningaanbod/huur?availability=1&moveunavailablelistingstothebottom=true&orderby=10&orderdescending=true'
-    response = requests.get(url)
-    response.raise_for_status()
+    response = post_request(url)
+
     soup = BeautifulSoup(response.text, 'html.parser')
     items = soup.select('article.objectcontainer')
     properties = []
@@ -126,9 +142,7 @@ def get_property_details_dolfijn():
 
 def get_property_details_pararius():
     url = 'https://www.pararius.com/apartments/nijmegen'
-    response = requests.get(url)
-    response.raise_for_status()
-
+    response = post_request(url)
     soup = BeautifulSoup(response.text, 'html.parser')
 
     # Selecting the listings
@@ -194,12 +208,9 @@ def send_telegram_message(message: str, chat_id: str, token: str):
     loop.run_until_complete(bot.send_message(chat_id=chat_id, text=message, parse_mode='Markdown'))
 
 def main():
-    details_dolfijn = format_for_telegram(get_property_details_dolfijn())
-    details_pararius = format_for_telegram(get_property_details_pararius())
-    details_nederwoon = format_for_telegram(get_property_details_nederwoon())
-    send_telegram_message(details_dolfijn, CHAT_ID, TOKEN)
-    send_telegram_message(details_pararius, CHAT_ID, TOKEN)
-    send_telegram_message(details_nederwoon, CHAT_ID, TOKEN)
+    post_message(format_for_telegram(get_property_details_dolfijn()))
+    post_message(format_for_telegram(get_property_details_pararius()))
+    post_message(format_for_telegram(get_property_details_nederwoon()))
 
 if __name__ == '__main__':
     main()
